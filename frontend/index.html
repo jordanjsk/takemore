@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Takemore | Luxury Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Auth Page -->
+    <div class="auth-container" id="authPage">
+        <div class="auth-box">
+            <div class="auth-logo">
+                <h1>Take<span>more</span></h1>
+                <p>Gérez votre marketplace</p>
+            </div>
+            
+            <div class="login-toggle">
+                <button class="active" onclick="showLogin('user')">Client</button>
+                <button onclick="showLogin('admin')">Administration</button>
+            </div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)" style="display:block;">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="votre@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Se connecter</button>
+            </form>
+            
+            <form id="registerForm" onsubmit="handleRegister(event)" style="display:none;">
+                <div class="form-group">
+                    <label>Nom complet</label>
+                    <input type="text" id="registerName" placeholder="Votre nom" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" placeholder="votre@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" id="registerPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary">S'inscrire</button>
+            </form>
+            
+            <div class="auth-toggle">
+                <a href="#" onclick="toggleAuthForm(); return false;" id="authToggleLink">Pas de compte ? S'inscrire</a>
+            </div>
+            
+            <div class="auth-footer">
+                <a href="#" onclick="showPublicSite()">← Retour au site</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Public Site -->
+    <div class="public-site hidden" id="publicSite">
+        <header class="pub-header">
+            <div class="pub-header-top">
+            </div>
+            <div class="pub-main-header">
+                <div class="container">
+                    <a href="#" class="pub-logo" onclick="showPublicSite()">Take<span>more</span></a>
+                    <div class="pub-search">
+                        <form onsubmit="searchProducts(event)">
+                            <input type="text" id="searchInput" placeholder="Rechercher un produit, une marque...">
+                            <button type="submit">Rechercher</button>
+                        </form>
+                    </div>
+                    <div class="pub-header-actions">
+                        <a href="#" onclick="handleAccountClick()" class="pub-account" id="accountBtn">
+                            👤 Mon compte
+                        </a>
+                        <a href="#" class="pub-cart">
+                            🛒 <span class="pub-cart-count">0</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <nav class="pub-nav">
+                <div class="container" id="navCategories">
+                    <a href="#" onclick="searchProducts(event, '')">Toutes les catégories</a>
+                </div>
+            </nav>
+        </header>
+
+        <section class="pub-hero">
+            <div class="container">
+                <div class="carousel">
+                    <div class="carousel-slides" id="carouselSlides"></div>
+                    <div class="hero-overlay">
+                        <h2 id="hero-title"></h2>
+                        <p id="hero-text"></p>
+                        <div class="hero-buttons">
+                            <button class="pub-btn">Acheter maintenant</button>
+                        </div>
+                    </div>
+                    <button class="carousel-btn prev" onclick="changeSlide(-1)">❮</button>
+                    <button class="carousel-btn next" onclick="changeSlide(1)">❯</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="pub-section pub-products">
+            <div class="container">
+                <!-- Advanced Filters -->
+                <div id="filtersContainer"></div>
+                
+                <div class="products-header">
+                    <div>
+                        <h2>Produits populaires</h2>
+                        <span class="product-count-badge" id="productCountDisplay">0 produits</span>
+                    </div>
+                    <div class="products-controls">
+                        <div class="items-per-page">
+                            <label>Afficher:</label>
+                            <select onchange="changeItemsPerPage(parseInt(this.value))">
+                                <option value="12" selected>12</option>
+                                <option value="24">24</option>
+                                <option value="48">48</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="pub-product-grid" id="publicProductGrid"></div>
+                <div id="paginationContainer"></div>
+            </div>
+        </section>
+
+        <section class="pub-section" id="recentlyViewedSection" style="display: none;">
+            <div class="container" id="recentlyViewedContainer"></div>
+        </section>
+
+        <footer class="pub-footer">
+            <div class="container">
+                <div class="pub-footer-grid">
+                    <div class="pub-footer-col">
+                        <h4>À propos</h4>
+                        <ul>
+                            <li><a href="/page.html?slug=qui-sommes-nous">Qui sommes-nous</a></li>
+                            <li><a href="/page.html?slug=carrieres">Carrières</a></li>
+                            <li><a href="/page.html?slug=presse">Presse</a></li>
+                        </ul>
+                    </div>
+                    <div class="pub-footer-col">
+                        <h4>Service client</h4>
+                        <ul>
+                            <li><a href="/page.html?slug=contact">Contact</a></li>
+                            <li><a href="/page.html?slug=livraison">Livraison</a></li>
+                            <li><a href="/page.html?slug=retours">Retours</a></li>
+                        </ul>
+                    </div>
+                    <div class="pub-footer-col">
+                        <h4>Informations</h4>
+                        <ul>
+                            <li><a href="/page.html?slug=conditions">Conditions</a></li>
+                            <li><a href="/page.html?slug=confidentialite">Confidentialité</a></li>
+                            <li><a href="/page.html?slug=faq">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div class="pub-footer-col">
+                        <h4>Suivez-nous</h4>
+                        <ul>
+                            <li><a href="/page.html?slug=facebook" target="_blank">Facebook</a></li>
+                            <li><a href="/page.html?slug=twitter" target="_blank">Twitter</a></li>
+                            <li><a href="/page.html?slug=instagram" target="_blank">Instagram</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pub-footer-bottom">
+                    <p>© 2024 Takemore. Tous droits réservés.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h3>Mon Profil</h3>
+                <button class="modal-close" onclick="closeProfile()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-header">
+                    <div class="profile-avatar-large">
+                        <div class="user-avatar" id="profileAvatar"></div>
+                    </div>
+                    <div class="profile-info-header">
+                        <h2 id="profileName"></h2>
+                        <p id="profileEmail"></p>
+                        <span class="profile-badge" id="profileRole"></span>
+                    </div>
+                </div>
+                
+                <div class="profile-stats">
+                    <div class="profile-stat-card">
+                        <div class="stat-icon blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+                        </div>
+                        <div>
+                            <div class="stat-label">Commandes</div>
+                            <div class="stat-value" id="profileOrderCount">0</div>
+                        </div>
+                    </div>
+                    <div class="profile-stat-card">
+                        <div class="stat-icon green">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <div>
+                            <div class="stat-label">Total dépensé</div>
+                            <div class="stat-value" id="profileTotalSpent">$0</div>
+                        </div>
+                    </div>
+                    <div class="profile-stat-card">
+                        <div class="stat-icon orange">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                        <div>
+                            <div class="stat-label">En attente</div>
+                            <div class="stat-value" id="profilePendingCount">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <h3>Mes Commandes</h3>
+                    <div class="profile-orders" id="profileOrders">
+                        <p style="text-align: center; color: #999; padding: 20px;">Aucune commande</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="logout()">Se déconnecter</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div class="modal-overlay" id="notificationsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Commandes en attente</h3>
+                <button class="modal-close" onclick="closeNotifications()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body" id="notificationsList" style="max-height: 400px; overflow-y: auto;">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeNotifications(); loadPage('orders');">Voir toutes les commandes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <!-- Dark Mode Toggle -->
+    <button class="theme-toggle" onclick="toggleDarkMode()" title="Changer le thème">
+        <span class="sun">☀️</span>
+        <span class="moon">🌙</span>
+    </button>
+
+    <!-- Compare Bar -->
+    <div class="compare-bar" id="compareBar">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <span>Comparer (<span id="compareCount">0</span>/4):</span>
+            <div class="compare-bar-items" id="compareBarItems"></div>
+        </div>
+        <div class="compare-bar-actions">
+            <button class="btn btn-primary btn-sm" onclick="openCompareModal()">Comparer</button>
+            <button class="btn btn-secondary btn-sm" onclick="clearCompare()">Effacer</button>
+        </div>
+    </div>
+
+    <!-- Compare Modal -->
+    <div class="modal-overlay" id="compareModal">
+        <div class="modal compare-modal">
+            <div class="modal-header">
+                <h3>Comparer les produits</h3>
+                <button class="modal-close" onclick="closeCompareModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="compare-grid" id="compareGridContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCompareModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Layout -->
+    <div class="admin-layout" id="adminLayout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Takemore</h2>
+                <p style="font-size: 12px; opacity: 0.7;">Administration</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active" data-page="dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                    Dashboard
+                </a>
+                <a href="#" data-page="products">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    Produits
+                </a>
+                <a href="#" data-page="orders">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/><circle cx="9.5" cy="19.5" r="1"/><circle cx="17.5" cy="19.5" r="1"/></svg>
+                    Commandes
+                </a>
+                <a href="#" data-page="users">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Clients
+                </a>
+                <a href="#" data-page="categories">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    Catégories
+                </a>
+                <a href="#" data-page="analytics">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    Statistiques
+                </a>
+                <a href="#" data-page="settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Paramètres
+                </a>
+                <a href="#" data-page="carousel">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
+                    Carrousel
+                </a>
+                <a href="#" data-page="pages">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    Pages & Footer
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" onclick="showAuth(); return false;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Déconnexion
+                </a>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="header-search">
+                    <input type="text" placeholder="Rechercher...">
+                </div>
+                <div class="header-actions">
+                    <button class="notification-btn" onclick="showNotifications()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <div class="user-menu">
+                        <div class="user-avatar">AD</div>
+                        <div class="user-info">
+                            <span>Admin</span>
+                            <small>Administrateur</small>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content" id="adminContent">
+                <!-- Dashboard Content -->
+                <div id="dashboardPage" class="admin-page">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span>Revenus totaux</span>
+                                <div class="stat-icon blue">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value">$124,567</div>
+                            <div class="stat-change up">↑ +12.5% ce mois</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span>Commandes</span>
+                                <div class="stat-icon green">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value">1,284</div>
+                            <div class="stat-change up">↑ +8.2% ce mois</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span>Produits</span>
+                                <div class="stat-icon orange">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value">342</div>
+                            <div class="stat-change down">↓ -3 ce mois</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span>Clients</span>
+                                <div class="stat-icon purple">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value">8,547</div>
+                            <div class="stat-change up">↑ +156 ce mois</div>
+                        </div>
+                    </div>
+
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3>Revenus mensuels</h3>
+                            <div class="chart-placeholder">Graphique des revenus</div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Top produits</h3>
+                            <div class="chart-placeholder">Classement produits</div>
+                        </div>
+                    </div>
+
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <h3>Dernières commandes</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="loadPage('orders')">Voir tout</button>
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Commande</th>
+                                    <th>Client</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboardOrdersTableBody"></tbody>
+                        </table>
+                        <div class="pagination">
+                            <span class="pagination-info" id="dashboardPaginationInfo"></span>
+                            <div class="pagination-btns" id="dashboardPaginationBtns">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Page -->
+                <div id="productsPage" class="admin-page" style="display:none;">
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <h3>Gestion des produits</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-primary btn-sm" onclick="openModal('addProduct')">+ Ajouter un produit</button>
+                            </div>
+                        </div>
+                        <div class="table-filters" style="padding: 15px 20px;">
+                            <select><option>Toutes les catégories</option><option>Électronique</option><option>Mode</option></select>
+                            <select><option>Tous les statuts</option><option>Actif</option><option>Inactif</option></select>
+                            <input type="text" placeholder="Rechercher...">
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Produit</th>
+                                    <th>Catégorie</th>
+                                    <th>Prix</th>
+                                    <th>Stock</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody"></tbody>
+                        </table>
+                        <div class="pagination">
+                            <span class="pagination-info" id="adminProductsPaginationInfo">Affichage de 0 sur 0 produits</span>
+                            <div class="pagination-btns" id="adminProductsPaginationBtns">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Page -->
+                <div id="ordersPage" class="admin-page" style="display:none;">
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <h3>Gestion des commandes</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="exportOrdersExcel()">Exporter Excel</button>
+                                <button class="btn btn-primary btn-sm" onclick="createNewOrder()">+ Nouvelle commande</button>
+                            </div>
+                        </div>
+                        <div class="table-filters" style="padding: 15px 20px;">
+                            <select><option>Tous les statuts</option><option>En attente</option><option>En cours</option><option>Expédiée</option><option>Livrée</option></select>
+                            <input type="date">
+                            <input type="text" placeholder="N° commande ou client...">
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Client</th>
+                                    <th>Date</th>
+                                    <th>Produits</th>
+                                    <th>Total</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody"></tbody>
+                        </table>
+                        <div class="pagination">
+                            <span class="pagination-info" id="adminOrdersPaginationInfo">Affichage de 0 sur 0 commandes</span>
+                            <div class="pagination-btns" id="adminOrdersPaginationBtns">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Page -->
+                <div id="usersPage" class="admin-page" style="display:none;">
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <h3>Gestion des clients</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-primary btn-sm" onclick="addClient()">+ Ajouter un client</button>
+                            </div>
+                        </div>
+                        <div class="table-filters" style="padding: 15px 20px;">
+                            <select><option>Tous les rôles</option><option>Client</option><option>VIP</option><option>Admin</option></select>
+                            <input type="text" placeholder="Rechercher un client...">
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Email</th>
+                                    <th>Téléphone</th>
+                                    <th>Commandes</th>
+                                    <th>Total dépensé</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                        <div class="pagination">
+                            <span class="pagination-info" id="adminUsersPaginationInfo">Affichage de 0 sur 0 clients</span>
+                            <div class="pagination-btns" id="adminUsersPaginationBtns">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories Page -->
+                <div id="categoriesPage" class="admin-page" style="display:none;">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <h4>Électronique</h4>
+                            <div class="value">89 produits</div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h4>Mode</h4>
+                            <div class="value">156 produits</div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h4>Maison</h4>
+                            <div class="value">67 produits</div>
+                        </div>
+                    </div>
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <h3>Catégories</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-primary btn-sm" onclick="addCategory()">+ Ajouter une catégorie</button>
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Catégorie</th>
+                                    <th>Slug</th>
+                                    <th>Produits</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Électronique</td>
+                                    <td>electronique</td>
+                                    <td>89</td>
+                                    <td><span class="status-badge active">Active</span></td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="action-btn edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                                            <button class="action-btn delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Mode</td>
+                                    <td>mode</td>
+                                    <td>156</td>
+                                    <td><span class="status-badge active">Active</span></td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="action-btn edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                                            <button class="action-btn delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Maison</td>
+                                    <td>maison</td>
+                                    <td>67</td>
+                                    <td><span class="status-badge active">Active</span></td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <button class="action-btn edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                                            <button class="action-btn delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Analytics Page -->
+                <div id="analyticsPage" class="admin-page" style="display:none;">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span>Visiteurs ce mois</span>
+                                <div class="stat-icon blue">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value">45,234</div>
+                            <div class="stat-change up">↑ +23% vs mois dernier</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <span>Taux de conversion</span>
+                                <div class="stat-icon green">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                </div>
+                            </div>
+                            <div class="stat-value">3.2%</div>
+                            <div class="stat-change up">↑ +0.5% vs mois dernier</div>
+                        </div>
+                    </div>
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3>Statistiques de visite</h3>
+                            <div class="chart-placeholder">Graphique des visiteurs</div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Produits vus</h3>
+                            <div class="chart-placeholder">Top produits</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="settingsPage" class="admin-page" style="display:none;">
+                    <div class="form-card">
+                        <h2>Paramètres généraux</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nom de la boutique</label>
+                                <input type="text" value="Takemore">
+                            </div>
+                            <div class="form-group">
+                                <label>Email de contact</label>
+                                <input type="email" value="contact@takemore.com">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Téléphone</label>
+                                <input type="tel" value="+33 1 23 45 67 89">
+                            </div>
+                            <div class="form-group">
+                                <label>Devise</label>
+                                <select>
+                                    <option>USD ($)</option>
+                                    <option>USD ($)</option>
+                                    <option>GBP (£)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Adresse</label>
+                            <textarea rows="2">123 Rue de Paris, 75001 Paris, France</textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" onclick="saveSettings()">Enregistrer</button>
+                            <button class="btn btn-secondary" onclick="cancelSettings()">Annuler</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carousel Page -->
+                <div id="carouselPage" class="admin-page" style="display:none;">
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <h3>Gestion du carrousel</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-primary btn-sm" onclick="openCarouselModal()">+ Ajouter une slide</button>
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Titre</th>
+                                    <th>Texte</th>
+                                    <th>Position</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="carouselTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pages Content -->
+                <div id="pagesPage" class="admin-page" style="display: none;">
+                    <div class="card">
+                        <div class="table-header">
+                            <h3>Gestion des pages du site & Footer</h3>
+                        </div>
+                        <div class="form-group" style="max-width: 400px; margin-bottom: 20px;">
+                            <label>Sélectionnez la page à modifier :</label>
+                            <select id="pageSelect" onchange="loadPageContent(this.value)">
+                                <option value="">-- Choisir une page --</option>
+                            </select>
+                        </div>
+                        <div id="pageEditorSection" style="display: none; border-top: 1px solid #eee; padding-top: 20px;">
+                            <div class="form-group">
+                                <label>Titre de la page</label>
+                                <input type="text" id="pageTitleInput">
+                            </div>
+                            <div class="form-group">
+                                <label>Contenu HTML (ou URL pour les réseaux sociaux)</label>
+                                <textarea id="pageContentInput" rows="15" style="font-family: monospace; padding: 15px;"></textarea>
+                            </div>
+                            <button class="btn btn-primary" onclick="savePageContent()">Enregistrer la page</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Ajouter un produit</h3>
+                <button class="modal-close" onclick="closeModal('addProduct')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nom du produit</label>
+                    <input type="text" id="productName" placeholder="Nom du produit">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Prix</label>
+                        <input type="number" id="productPrice" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Stock</label>
+                        <input type="number" id="productStock" placeholder="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Catégorie</label>
+                    <select id="productCategory">
+                        <option>Sélectionnez une catégorie</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="productDescription" rows="3" placeholder="Description du produit"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image</label>
+                    <input type="file" id="productImageFile" accept="image/*" onchange="previewImage(this)">
+                    <img id="imagePreview" style="max-width: 200px; margin-top: 10px; display: none; border-radius: 8px;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addProduct')">Annuler</button>
+                <button class="btn btn-primary" onclick="addProduct()">Ajouter</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div class="modal-overlay" id="orderDetailModal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Commande #<span id="orderDetailId"></span></h3>
+                <button class="modal-close" onclick="closeOrderDetail()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="order-detail-info">
+                    <div class="detail-row">
+                        <span>Date:</span>
+                        <span id="orderDetailDate"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Client:</span>
+                        <span id="orderDetailClient"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Total:</span>
+                        <span id="orderDetailTotal" style="font-weight: bold; color: var(--primary);"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Statut:</span>
+                        <select id="orderStatusSelect" style="padding: 5px 10px; border-radius: 4px; border: 2px solid var(--gray-200);">
+                            <option value="En attente">En attente</option>
+                            <option value="En cours">En cours</option>
+                            <option value="Expédiée">Expédiée</option>
+                            <option value="Livrée">Livrée</option>
+                        </select>
+                    </div>
+                </div>
+                <h4 style="margin: 20px 0 10px;">Produits commandés</h4>
+                <div id="orderDetailItems"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeOrderDetail()">Fermer</button>
+                <button class="btn btn-primary" onclick="saveOrderStatus()">Enregistrer le statut</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal-overlay" id="cartModal">
+        <div class="modal cart-modal">
+            <div class="modal-header">
+                <h3>Mon Panier</h3>
+                <button class="modal-close" onclick="closeCart()">✕</button>
+            </div>
+            <div class="modal-body cart-items" id="cartItems">
+                <p class="empty-cart">Votre panier est vide</p>
+            </div>
+            <div class="modal-footer cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cartTotal">$0.00</span>
+                </div>
+                <button class="btn btn-primary" onclick="checkout()">Passer la commande</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Finaliser la commande</h3>
+                <button class="modal-close" onclick="closeCheckout()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="checkout-summary">
+                    <h4>Récapitulatif</h4>
+                    <p>Total: <strong id="checkoutTotal">$0.00</strong></p>
+                </div>
+                <div class="form-group">
+                    <label>Adresse de livraison</label>
+                    <textarea id="deliveryAddress" rows="3" placeholder="Entrez votre adresse..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Numéro de téléphone (WhatsApp)*</label>
+                    <input type="tel" id="checkoutPhone" placeholder="Ex: +243..." required>
+                </div>
+                <div class="form-group">
+                    <label>Mode de paiement</label>
+                    <select id="paymentMethod">
+                        <option>Carte bancaire</option>
+                        <option>PayPal</option>
+                        <option>À la livraison</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCheckout()">Annuler</button>
+                <button class="btn btn-success" onclick="confirmOrder()">Confirmer la commande</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carousel Modal -->
+    <div class="modal-overlay" id="carouselModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Ajouter une slide</h3>
+                <button class="modal-close" onclick="closeCarouselModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Titre</label>
+                    <input type="text" id="carouselTitle" placeholder="Titre de la slide">
+                </div>
+                <div class="form-group">
+                    <label>Texte</label>
+                    <input type="text" id="carouselText" placeholder="Description">
+                </div>
+                <div class="form-group">
+                    <label>Image</label>
+                    <input type="file" id="carouselImageFile" accept="image/*" onchange="previewCarouselImage(this)">
+                    <img id="carouselImagePreview" style="max-width: 300px; margin-top: 10px; display: none; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label>Position</label>
+                    <input type="number" id="carouselPosition" value="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCarouselModal()">Annuler</button>
+                <button class="btn btn-primary" onclick="addCarouselSlide()">Ajouter</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div class="modal-overlay" id="productDetailModal">
+        <div class="modal modal-large product-detail-modal">
+            <div class="modal-header">
+                <h3 id="detailName"></h3>
+                <button class="modal-close" onclick="closeProductDetail()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="product-detail-content">
+                    <div class="product-detail-left">
+                        <img id="detailImage" src="" alt="">
+                    </div>
+                    <div class="product-detail-right">
+                        <div class="detail-rating">
+                            <span id="detailRating"></span> ⭐
+                        </div>
+                        <div class="detail-price" id="detailPrice"></div>
+                        <div class="detail-stock" id="detailStock"></div>
+                        <div class="detail-category">Catégorie: <span id="detailCategory"></span></div>
+                        <button class="btn btn-primary" id="detailAddToCart" style="width: 100%; margin-top: 20px;">Ajouter au panier</button>
+                        <div class="detail-tabs">
+                            <div class="tab-buttons">
+                                <button class="tab-btn active" onclick="switchTab('description', event)">Description</button>
+                                <button class="tab-btn" onclick="switchTab('specs', event)">Spécifications</button>
+                                <button class="tab-btn" onclick="switchTab('reviews', event)">Avis</button>
+                            </div>
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="tabDescription"></div>
+                                <div class="tab-pane" id="tabSpecs">Aucune spécification disponible</div>
+                                <div class="tab-pane" id="tabReviews">Aucun avis pour le moment</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="features.js"></script>
+</body>
+</html>

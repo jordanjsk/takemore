@@ -1,0 +1,23 @@
+# Environnement Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Variables et secrets
+.env
+.env.*
+!.env.example
+
+# Base SQLite locale
+backend/shop.db
+
+# Fichiers temporaires
+*.log
+*.tmp
+
+# OS / IDE
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

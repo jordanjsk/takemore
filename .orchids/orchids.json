@@ -1,0 +1,7 @@
+{
+  "projectId": "8f217c8d-1977-404a-a9ca-9b3b1719572a",
+  "createdAt": 1741115509,
+  "startupCommands": [
+    "python backend/app.py"
+  ]
+}

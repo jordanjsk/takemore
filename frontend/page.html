@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Takemore - Page</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        .page-container {
+            max-width: 800px;
+            margin: 120px auto 60px;
+            padding: 40px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #000;
+            text-align: center;
+        }
+        .page-content {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        .page-content h2, .page-content h3 {
+            font-family: 'Playfair Display', serif;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #000;
+        }
+        .page-content p {
+            margin-bottom: 20px;
+        }
+        .page-content ul {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        .page-content a {
+            color: #c9a96e;
+            text-decoration: underline;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header class="pub-header">
+        <div class="pub-container header-content">
+            <div class="pub-logo">
+                <a href="/">TAKEMORE</a>
+            </div>
+            <nav class="pub-nav">
+                <a href="/">Accueil</a>
+                <a href="/#products">Collections</a>
+            </nav>
+            <div class="header-actions">
+                <button class="cart-btn" onclick="window.location.href='/'">Retour à la boutique</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-container">
+        <div id="loading" class="loading">Chargement...</div>
+        <h1 id="pageTitle" class="page-title" style="display: none;"></h1>
+        <div id="pageContent" class="page-content" style="display: none;"></div>
+    </div>
+
+    <script>
+        const BACKEND_URL = window.location.port === '5500' || window.location.port === '3000'
+            ? 'http://127.0.0.1:5000'
+            : '';
+        const API_URL = `${BACKEND_URL}/api`;
+        
+        async function loadPage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('slug');
+            
+            if (!slug) {
+                document.getElementById('loading').textContent = 'Page non trouvée.';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/pages/${slug}`);
+                if (!response.ok) {
+                    throw new Error('Page not found');
+                }
+                const page = await response.json();
+                
+                // Si c'est un lien externe (ex: réseaux sociaux), on redirige directement
+                if (page.content.startsWith('http://') || page.content.startsWith('https://')) {
+                    window.location.href = page.content;
+                    return;
+                }
+                
+                document.title = `Takemore - ${page.title}`;
+                document.getElementById('loading').style.display = 'none';
+                
+                const titleEl = document.getElementById('pageTitle');
+                titleEl.textContent = page.title;
+                titleEl.style.display = 'block';
+                
+                const contentEl = document.getElementById('pageContent');
+                contentEl.innerHTML = page.content;
+                contentEl.style.display = 'block';
+                
+            } catch (error) {
+                document.getElementById('loading').textContent = 'Erreur lors du chargement de la page.';
+            }
+        }
+        
+        window.onload = loadPage;
+    </script>
+</body>
+</html>

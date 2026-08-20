@@ -1,0 +1,20 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: andy-app
+    ports:
+      - "8080:8080"
+    volumes:
+      # Persistance des images téléchargées (uploads)
+      - ./backend/static/uploads:/app/backend/static/uploads
+    env_file:
+      - .env
+    networks:
+     - andy-network
+    restart: unless-stopped
+
+networks:
+  andy-network:
+    external: true
