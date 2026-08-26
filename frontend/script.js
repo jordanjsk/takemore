@@ -1,4 +1,5 @@
-const BACKEND_URL = window.location.port === '5500' || window.location.port === '3000'
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const BACKEND_URL = isLocal
     ? 'http://127.0.0.1:5000'
     : 'https://takemore.onrender.com';
 

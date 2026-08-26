@@ -32,14 +32,16 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
 # --- GESTION DES ENVIRONNEMENTS (DEV vs PROD) ---
 FLASK_ENV = os.getenv('FLASK_ENV', 'development')
+IS_PRODUCTION = (FLASK_ENV == 'production') or (os.getenv('RENDER') == 'true')
 
-if FLASK_ENV == 'production':
+if IS_PRODUCTION:
     # Configuration de PRODUCTION
     # Liste des domaines de production autorisés (séparés par des virgules dans le .env)
-    ALLOWED_ORIGINS = os.getenv(
-    'ALLOWED_ORIGINS',
-    'https://takemore.netlify.app,https://takemore.com,https://www.takemore.com'
-    ).split(',')
+    raw_origins = os.getenv(
+        'ALLOWED_ORIGINS',
+        'https://takemore.netlify.app,https://takemore.com,https://www.takemore.com'
+    )
+    ALLOWED_ORIGINS = [origin.strip() for origin in raw_origins.split(',') if origin.strip()]
     # En production (SameSite=None nécessite obligatoirement HTTPS donc Secure=True)
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
     app.config['SESSION_COOKIE_SECURE'] = True
@@ -50,7 +52,9 @@ else:
         'http://127.0.0.1:5000', 
         'http://localhost:5000', 
         'http://localhost:3000', 
-        'http://127.0.0.1:5500'
+        'http://127.0.0.1:5500',
+        'http://127.0.0.1:5501',
+        'http://localhost:5500'
     ]
     # En local sans HTTPS, on utilise Lax et Secure=False pour éviter que le navigateur bloque le cookie
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
@@ -103,10 +107,17 @@ def allowed_file(filename):
 
 class PostgreSQLConnection:
     def __init__(self):
-        self.conn = psycopg2.connect(
-            **POSTGRES_CONFIG,
-            cursor_factory=RealDictCursor
-        )
+        db_url = os.getenv('DATABASE_URL') or os.getenv('INTERNAL_DATABASE_URL')
+        if db_url:
+            self.conn = psycopg2.connect(
+                db_url,
+                cursor_factory=RealDictCursor
+            )
+        else:
+            self.conn = psycopg2.connect(
+                **POSTGRES_CONFIG,
+                cursor_factory=RealDictCursor
+            )
 
     def execute(self, query, params=None):
         cursor = self.conn.cursor()
@@ -185,7 +196,7 @@ def admin_required(f):
         # 1. Vérifier si l'utilisateur est connecté
         if 'user_id' not in session:
             # Si c'est une requête API ou Ajax, on renvoie une erreur JSON
-            if request.is_json or request.path.startswith('/api/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            if request.is_json or request.path.startswith('/api/') or request.path.startswith('/admin/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', ''):
                 return jsonify({'error': 'Non authentifié. Veuillez vous connecter.'}), 401
             # Sinon, pour les accès directs via navigateur (ex: export excel), on redirige vers l'accueil
             return redirect('/')
@@ -193,7 +204,7 @@ def admin_required(f):
         # 2. Vérifier si l'utilisateur a le rôle admin
         if session.get('role') != 'admin':
             print(f"Tentative accès refusé: {request.path} - IP: {request.remote_addr}")
-            if request.is_json or request.path.startswith('/api/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            if request.is_json or request.path.startswith('/api/') or request.path.startswith('/admin/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 'application/json' in request.headers.get('Accept', ''):
                 return jsonify({'error': 'Accès refusé. Droits administrateur requis.'}), 403
             return redirect('/')
             
