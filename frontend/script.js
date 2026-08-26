@@ -1,6 +1,6 @@
 const BACKEND_URL = window.location.port === '5500' || window.location.port === '3000'
     ? 'http://127.0.0.1:5000'
-    : '';
+    : 'https://takemore.onrender.com';
 
 const API_URL = `${BACKEND_URL}/api`;
 const STATIC_URL = `${BACKEND_URL}/static/uploads`;
