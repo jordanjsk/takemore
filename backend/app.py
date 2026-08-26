@@ -36,8 +36,10 @@ FLASK_ENV = os.getenv('FLASK_ENV', 'development')
 if FLASK_ENV == 'production':
     # Configuration de PRODUCTION
     # Liste des domaines de production autorisés (séparés par des virgules dans le .env)
-    ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'https://takemore.com,https://www.takemore.com').split(',')
-    
+    ALLOWED_ORIGINS = os.getenv(
+    'ALLOWED_ORIGINS',
+    'https://takemore.netlify.app,https://takemore.com,https://www.takemore.com'
+    ).split(',')
     # En production (SameSite=None nécessite obligatoirement HTTPS donc Secure=True)
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
     app.config['SESSION_COOKIE_SECURE'] = True
