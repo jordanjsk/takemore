@@ -7,12 +7,13 @@ SQLITE_DB = os.path.join(
     "shop.db"
 )
 
+DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("INTERNAL_DATABASE_URL")
+
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL n'est pas définie")
+
 POSTGRES_CONFIG = {
-    "host": "localhost",
-    "port": 5432,
-    "dbname": "andy",
-    "user": "andy_user",
-    "password": "andy_password",
+    "dsn": DATABASE_URL
 }
 
 TABLES = [
