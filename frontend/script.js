@@ -476,7 +476,8 @@ async function handleRegister(e) {
             alert(data.message || 'Erreur lors de l\'inscription');
         }
     } catch (error) {
-        alert('Erreur lors de l\'inscription');
+        console.error('ERREUR REGISTER:', error);
+        alert('ERREUR REGISTER: ' + error.message);
     }
 }
 
@@ -525,6 +526,8 @@ async function handleLogin(e) {
             showToast('Email ou mot de passe incorrect', 'error');
         }
     } catch (error) {
+        console.error('ERREUR LOGIN:', error);
+        alert('ERREUR LOGIN: ' + error.message);
         showToast('Erreur de connexion au serveur', 'error');
     }
 }
